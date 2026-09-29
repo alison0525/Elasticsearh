@@ -5,6 +5,8 @@ import com.back.domain.post.comment.repository.CommentRepository;
 import com.back.domain.post.post.document.Post;
 import com.back.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +39,10 @@ public class CommentService {
         return commentRepository.findByPostId(postId);
     }
 
+    public Page<Comment> findByPostId(String postId, Pageable pageable) {
+        return commentRepository.findByPostId(postId, pageable);
+    }
+
     public Comment update(String id, String content) {
         Comment comment = findById(id);
         if (content != null){
@@ -47,5 +53,22 @@ public class CommentService {
 
     public void delete(Comment comment) {
         commentRepository.delete(comment);
+    }
+
+    public enum SearchType {
+        CONTENT,
+        AUTHOR,
+        CONTENT_AUTHOR
+    }
+
+    public Page<Comment> search(String postId, String keyword, String searchType, Pageable pageable) {
+        return switch (searchType) {
+            case "content" -> commentRepository.findByPostIdAndContentContaining(postId, keyword, pageable);
+            case "author" -> commentRepository.findByPostIdAndAuthorContaining(postId, keyword, pageable);
+            case "contentAndAuthor" -> commentRepository.findByPostIdAndContentContainingOrPostIdAndAuthorContaining(
+                    postId, keyword, postId, keyword, pageable
+            );
+            default -> commentRepository.findByPostId(postId, pageable);
+        };
     }
 }

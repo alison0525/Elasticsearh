@@ -4,6 +4,8 @@ import com.back.domain.post.post.document.Post;
 import com.back.domain.post.post.repository.PostRepository;
 import com.back.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,5 +49,9 @@ public class PostService {
     public void delete(String id) {
         Post post = findById(id);
         postRepository.delete(post);
+    }
+
+    public Page<Post> findAll(Pageable pageable){
+        return postRepository.findAll(pageable);
     }
 }
